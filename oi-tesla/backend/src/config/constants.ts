@@ -1,0 +1,126 @@
+// Oi Tesla - System Constants & PRD Story Cast
+// Exactly as defined in job.pdf: Nusrat, Rafiq, Shirin, Jashim, Bullet
+
+import { Area, AreaDistance, FareBreakdown } from '../types/index.js';
+
+// Fare configuration according to PRD Section 5
+// passengerFare = baseFare + distanceCharge - poolDiscount
+// Stored as integer poysha (100 poysha = 1 BDT) to eliminate floating point imprecision
+export const FARE_CONFIG = {
+  BASE_FARE_POYSHA: 3000,          // ৳30.00 base fare
+  PER_KM_CHARGE_POYSHA: 1000,      // ৳10.00 per kilometer
+  POOL_DISCOUNT_PERCENT: 30,       // 30% discount for sharing seats
+  CANCELLATION_FEE_POYSHA: 1000,   // ৳10.00 cancellation fee if matched
+};
+
+export const VEHICLE_CONFIG = {
+  DEFAULT_CAPACITY: 3,             // Bullet's maximum passenger capacity
+  MIN_SEATS: 1,
+  MAX_SEATS: 3,
+};
+
+// Fixed Story IDs for deterministic seeds, tests, and API demonstrations
+export const STORY_IDS = {
+  DRIVER_JASHIM: 'd1000000-0000-0000-0000-000000000001',
+  VEHICLE_BULLET: 'v1000000-0000-0000-0000-000000000001',
+  PASSENGER_NUSRAT: 'p1000000-0000-0000-0000-000000000001',
+  PASSENGER_RAFIQ: 'p1000000-0000-0000-0000-000000000002',
+  PASSENGER_SHIRIN: 'p1000000-0000-0000-0000-000000000003',
+
+  AREA_BANANI: 'a1000000-0000-0000-0000-000000000001',
+  AREA_GULSHAN_1: 'a1000000-0000-0000-0000-000000000002',
+  AREA_MOHAKHALI: 'a1000000-0000-0000-0000-000000000003',
+  AREA_DHANMONDI: 'a1000000-0000-0000-0000-000000000004',
+  AREA_MIRPUR: 'a1000000-0000-0000-0000-000000000005',
+  AREA_UTTARA: 'a1000000-0000-0000-0000-000000000006',
+  AREA_FARMGATE: 'a1000000-0000-0000-0000-000000000007',
+  AREA_BASHUNDHARA: 'a1000000-0000-0000-0000-000000000008',
+};
+
+// Predefined Dhaka Areas
+export const DHAKA_AREAS: Area[] = [
+  { id: STORY_IDS.AREA_BANANI, name: 'Banani', lat: 23.7937, lng: 90.4066, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_GULSHAN_1, name: 'Gulshan 1', lat: 23.7808, lng: 90.4169, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_MOHAKHALI, name: 'Mohakhali', lat: 23.7781, lng: 90.4040, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_DHANMONDI, name: 'Dhanmondi', lat: 23.7461, lng: 90.3742, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_MIRPUR, name: 'Mirpur', lat: 23.8041, lng: 90.3663, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_UTTARA, name: 'Uttara', lat: 23.8759, lng: 90.3795, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_FARMGATE, name: 'Farmgate', lat: 23.7573, lng: 90.3870, created_at: '2026-09-23T00:00:00Z' },
+  { id: STORY_IDS.AREA_BASHUNDHARA, name: 'Bashundhara', lat: 23.8133, lng: 90.4255, created_at: '2026-09-23T00:00:00Z' },
+];
+
+// Precomputed distances matrix (in kilometers)
+export const DHAKA_DISTANCES: Record<string, Record<string, number>> = {
+  [STORY_IDS.AREA_BANANI]: {
+    [STORY_IDS.AREA_GULSHAN_1]: 2.0,   // Rafiq's trip: 2.0 km
+    [STORY_IDS.AREA_MOHAKHALI]: 3.2,   // Nusrat's trip: 3.2 km
+    [STORY_IDS.AREA_DHANMONDI]: 8.5,
+    [STORY_IDS.AREA_MIRPUR]: 7.0,
+    [STORY_IDS.AREA_UTTARA]: 10.5,
+    [STORY_IDS.AREA_FARMGATE]: 5.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 4.5,
+  },
+  [STORY_IDS.AREA_GULSHAN_1]: {
+    [STORY_IDS.AREA_BANANI]: 2.0,
+    [STORY_IDS.AREA_MOHAKHALI]: 2.5,
+    [STORY_IDS.AREA_DHANMONDI]: 9.0,
+    [STORY_IDS.AREA_MIRPUR]: 8.5,
+    [STORY_IDS.AREA_UTTARA]: 11.0,
+    [STORY_IDS.AREA_FARMGATE]: 6.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 5.0,
+  },
+  [STORY_IDS.AREA_MOHAKHALI]: {
+    [STORY_IDS.AREA_BANANI]: 3.2,
+    [STORY_IDS.AREA_GULSHAN_1]: 2.5,
+    [STORY_IDS.AREA_DHANMONDI]: 7.0,
+    [STORY_IDS.AREA_MIRPUR]: 6.5,
+    [STORY_IDS.AREA_UTTARA]: 9.5,
+    [STORY_IDS.AREA_FARMGATE]: 3.5,
+    [STORY_IDS.AREA_BASHUNDHARA]: 6.0,
+  },
+  [STORY_IDS.AREA_DHANMONDI]: {
+    [STORY_IDS.AREA_BANANI]: 8.5,
+    [STORY_IDS.AREA_GULSHAN_1]: 9.0,
+    [STORY_IDS.AREA_MOHAKHALI]: 7.0,
+    [STORY_IDS.AREA_MIRPUR]: 5.5,
+    [STORY_IDS.AREA_UTTARA]: 14.0,
+    [STORY_IDS.AREA_FARMGATE]: 3.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 11.0,
+  },
+  [STORY_IDS.AREA_MIRPUR]: {
+    [STORY_IDS.AREA_BANANI]: 7.0,
+    [STORY_IDS.AREA_GULSHAN_1]: 8.5,
+    [STORY_IDS.AREA_MOHAKHALI]: 6.5,
+    [STORY_IDS.AREA_DHANMONDI]: 5.5,
+    [STORY_IDS.AREA_UTTARA]: 6.0,
+    [STORY_IDS.AREA_FARMGATE]: 5.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 8.0,
+  },
+  [STORY_IDS.AREA_UTTARA]: {
+    [STORY_IDS.AREA_BANANI]: 10.5,
+    [STORY_IDS.AREA_GULSHAN_1]: 11.0,
+    [STORY_IDS.AREA_MOHAKHALI]: 9.5,
+    [STORY_IDS.AREA_DHANMONDI]: 14.0,
+    [STORY_IDS.AREA_MIRPUR]: 6.0,
+    [STORY_IDS.AREA_FARMGATE]: 12.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 8.5,
+  },
+  [STORY_IDS.AREA_FARMGATE]: {
+    [STORY_IDS.AREA_BANANI]: 5.0,
+    [STORY_IDS.AREA_GULSHAN_1]: 6.0,
+    [STORY_IDS.AREA_MOHAKHALI]: 3.5,
+    [STORY_IDS.AREA_DHANMONDI]: 3.0,
+    [STORY_IDS.AREA_MIRPUR]: 5.0,
+    [STORY_IDS.AREA_UTTARA]: 12.0,
+    [STORY_IDS.AREA_BASHUNDHARA]: 7.5,
+  },
+  [STORY_IDS.AREA_BASHUNDHARA]: {
+    [STORY_IDS.AREA_BANANI]: 4.5,
+    [STORY_IDS.AREA_GULSHAN_1]: 5.0,
+    [STORY_IDS.AREA_MOHAKHALI]: 6.0,
+    [STORY_IDS.AREA_DHANMONDI]: 11.0,
+    [STORY_IDS.AREA_MIRPUR]: 8.0,
+    [STORY_IDS.AREA_UTTARA]: 8.5,
+    [STORY_IDS.AREA_FARMGATE]: 7.5,
+  },
+};
