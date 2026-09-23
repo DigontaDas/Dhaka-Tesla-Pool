@@ -5,9 +5,13 @@ import { useAuth } from '../context/AuthContext';
 import { ApiClient } from '../lib/api';
 import { useRouter } from 'next/navigation';
 import { UberLiveMap } from '../components/UberLiveMap';
+import { useLanguage } from '../context/LanguageContext';
+import { TeslaLogo } from '../components/TeslaLogo';
+import { ElectricRickshawIcon } from '../components/ElectricRickshawIcon';
 
 export default function BookRidePage() {
   const { user, role } = useAuth();
+  const { language } = useLanguage();
   const router = useRouter();
 
   const [areas, setAreas] = useState<any[]>([]);
@@ -78,21 +82,31 @@ export default function BookRidePage() {
       {/* Top Greeting Header */}
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-1.5">
-            <h1 className="font-sora font-bold text-xl text-on-surface">
-              Hey, {user?.name?.split(' ')[0] || 'Traveler'}
-            </h1>
-            <span className="text-xl animate-bounce">👋</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+              <TeslaLogo size={16} color="#46f1c5" />
+            </div>
+            <div>
+              <h1 className="font-sora font-extrabold text-lg text-on-surface">
+                {language === 'bn'
+                  ? `স্বাগতম, ${user?.name?.split(' ')[0] || 'যাত্রী'}`
+                  : `Hey, ${user?.name?.split(' ')[0] || 'Traveler'}`}
+              </h1>
+              <p className="text-[11px] text-on-surface-variant">
+                {language === 'bn'
+                  ? 'আজ ঢাকায় কোন রুটে শেয়ারিং রিকশায় যাবেন?'
+                  : 'Where are you heading in Dhaka today?'}
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-on-surface-variant mt-0.5">
-            Where are you heading in Dhaka today?
-          </p>
         </div>
 
         {/* Green Commute Badge */}
-        <div className="flex items-center gap-1.5 bg-surface-container-high px-3 py-1.5 rounded-full border border-surface-container-highest">
-          <span className="material-symbols-outlined text-sm text-primary">eco</span>
-          <span className="text-xs font-semibold text-primary">2.4 kg CO₂ saved</span>
+        <div className="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-1.5 rounded-full border border-surface-container-highest">
+          <ElectricRickshawIcon size={18} color="#46f1c5" />
+          <span className="text-[11px] font-bold text-primary font-sora">
+            {language === 'bn' ? '১০০% ইভি' : '100% EV'}
+          </span>
         </div>
       </div>
 
@@ -111,7 +125,7 @@ export default function BookRidePage() {
           <div className="w-3 h-3 rounded-full bg-primary shadow-[0_0_8px_rgba(0,212,170,0.8)] shrink-0" />
           <div className="flex flex-col flex-1 min-w-0">
             <span className="text-[10px] uppercase font-bold text-on-surface-variant tracking-wider">
-              Pickup Point
+              {language === 'bn' ? 'উঠার স্থান (পিকআপ)' : 'Pickup Point'}
             </span>
             <select
               value={pickupId}
@@ -143,7 +157,7 @@ export default function BookRidePage() {
           <div className="w-3 h-3 rounded-full bg-secondary shadow-[0_0_8px_rgba(255,219,157,0.8)] shrink-0" />
           <div className="flex flex-col flex-1 min-w-0">
             <span className="text-[10px] uppercase font-bold text-secondary tracking-wider">
-              Destination
+              {language === 'bn' ? 'নামার স্থান (গন্তব্য)' : 'Destination'}
             </span>
             <select
               value={destinationId}
@@ -163,7 +177,9 @@ export default function BookRidePage() {
         <div className="grid grid-cols-2 gap-3 pt-1">
           {/* Seats Selector */}
           <div className="flex flex-col gap-1 bg-surface-container p-2.5 rounded-xl border border-surface-container-high/40">
-            <span className="text-[10px] uppercase font-bold text-on-surface-variant">Seats</span>
+            <span className="text-[10px] uppercase font-bold text-on-surface-variant">
+              {language === 'bn' ? 'সিট সংখ্যা' : 'Seats'}
+            </span>
             <div className="flex items-center justify-between">
               {[1, 2, 3].map((num) => (
                 <button
@@ -176,7 +192,7 @@ export default function BookRidePage() {
                       : 'bg-surface-container-high text-on-surface-variant hover:text-on-surface'
                   }`}
                 >
-                  {num} {num === 1 ? 'seat' : 'seats'}
+                  {num} {language === 'bn' ? 'টি' : num === 1 ? 'seat' : 'seats'}
                 </button>
               ))}
             </div>
@@ -184,7 +200,9 @@ export default function BookRidePage() {
 
           {/* Payment Method Selector */}
           <div className="flex flex-col gap-1 bg-surface-container p-2.5 rounded-xl border border-surface-container-high/40">
-            <span className="text-[10px] uppercase font-bold text-on-surface-variant">Payment</span>
+            <span className="text-[10px] uppercase font-bold text-on-surface-variant">
+              {language === 'bn' ? 'পেমেন্ট মাধ্যম' : 'Payment'}
+            </span>
             <div className="flex items-center gap-1.5 h-8">
               <button
                 type="button"
@@ -195,7 +213,7 @@ export default function BookRidePage() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                💵 Cash
+                💵 {language === 'bn' ? 'নগদ ক্যাশ' : 'Cash'}
               </button>
               <button
                 type="button"
@@ -206,7 +224,7 @@ export default function BookRidePage() {
                     : 'text-on-surface-variant hover:text-on-surface'
                 }`}
               >
-                ⚡ TeslaPay
+                ⚡ {language === 'bn' ? 'টেসলাপেই' : 'TeslaPay'}
               </button>
             </div>
           </div>
@@ -217,9 +235,9 @@ export default function BookRidePage() {
           <div className="bg-surface-container-lowest/80 rounded-xl p-3 border border-primary/20 flex flex-col gap-2 mt-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-primary text-base">group</span>
+                <TeslaLogo size={14} color="#46f1c5" />
                 <span className="text-xs font-bold text-primary uppercase font-sora">
-                  Pooled Fare (30% Off)
+                  {language === 'bn' ? 'শেয়ারিং ভাড়া (৩০% সাশ্রয়ী)' : 'Pooled Fare (30% Off)'}
                 </span>
               </div>
               <div className="flex items-baseline gap-2">
@@ -233,9 +251,11 @@ export default function BookRidePage() {
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-on-surface-variant border-t border-surface-container-high/50 pt-2">
-              <span>Distance: {estimate.distance_km} km</span>
+              <span>{language === 'bn' ? `দূরত্ব: ${estimate.distance_km} কিমি` : `Distance: ${estimate.distance_km} km`}</span>
               <span className="text-secondary font-semibold">
-                You save ৳{estimate.savings_bdt.toFixed(2)} sharing with Bullet!
+                {language === 'bn'
+                  ? `বুলেট রিকশায় সাশ্রয় ৳${estimate.savings_bdt.toFixed(2)}`
+                  : `Save ৳${estimate.savings_bdt.toFixed(2)} with Bullet!`}
               </span>
             </div>
           </div>
@@ -252,7 +272,11 @@ export default function BookRidePage() {
         {bookingSuccess && (
           <div className="p-2.5 rounded-xl bg-primary/20 border border-primary text-primary text-xs flex items-center gap-2">
             <span className="material-symbols-outlined text-sm">check_circle</span>
-            <span>Ride requested! Connecting with Bullet & Jashim...</span>
+            <span>
+              {language === 'bn'
+                ? 'রিকশা রিকোয়েস্ট সফল! পাইলট জসিমের সাথে যুক্ত হচ্ছে...'
+                : 'Ride requested! Connecting with Bullet & Jashim...'}
+            </span>
           </div>
         )}
 
@@ -265,11 +289,15 @@ export default function BookRidePage() {
           {loading ? (
             <>
               <span className="material-symbols-outlined text-xl animate-spin">progress_activity</span>
-              <span>Matching Tesla Pod...</span>
+              <span>{language === 'bn' ? 'টেসলা রিকশা খোঁজা হচ্ছে...' : 'Matching Tesla Pod...'}</span>
             </>
           ) : (
             <>
-              <span>Confirm & Request Pool • বুক করুন</span>
+              <span>
+                {language === 'bn'
+                  ? 'টেসলা রিকশা পুল নিশ্চিত করুন'
+                  : 'Confirm & Request Tesla Micro-Pool'}
+              </span>
               <span className="material-symbols-outlined text-xl">arrow_forward</span>
             </>
           )}

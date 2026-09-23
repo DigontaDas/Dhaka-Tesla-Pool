@@ -2,10 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ApiClient } from '../../lib/api';
+import { TeslaLogo } from '../../components/TeslaLogo';
+import { ElectricRickshawIcon } from '../../components/ElectricRickshawIcon';
 
 export default function HistoryPage() {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const [rides, setRides] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -24,15 +28,21 @@ export default function HistoryPage() {
       {/* Header & Stats Banner */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-sora font-bold text-xl text-on-surface">Your Ride History</h1>
-          <p className="text-xs text-on-surface-variant">
-            All electric micro-pool trips for {user?.name}
+          <div className="flex items-center gap-2">
+            <TeslaLogo className="w-5 h-5 text-primary" />
+            <h1 className="font-sora font-bold text-xl text-on-surface">
+              {language === 'bn' ? 'রাইড হিস্টোরি' : 'Your Ride History'}
+            </h1>
+          </div>
+          <p className="text-xs text-on-surface-variant mt-0.5">
+            {language === 'bn' ? `${user?.name}-এর সকল ইলেকট্রিক রিকশা ট্রিপ` : `All electric micro-pool trips for ${user?.name}`}
           </p>
         </div>
 
-        <div className="bg-surface-container-high px-3 py-1.5 rounded-full border border-surface-container-highest">
+        <div className="bg-surface-container-high px-3 py-1.5 rounded-full border border-surface-container-highest flex items-center gap-1.5">
+          <ElectricRickshawIcon className="w-3.5 h-3.5 text-primary" />
           <span className="text-xs font-bold text-primary font-sora">
-            {rides.length} {rides.length === 1 ? 'Trip' : 'Trips'}
+            {rides.length} {language === 'bn' ? 'টি ট্রিপ' : (rides.length === 1 ? 'Trip' : 'Trips')}
           </span>
         </div>
       </div>
@@ -42,14 +52,18 @@ export default function HistoryPage() {
           <span className="material-symbols-outlined text-3xl text-primary animate-spin">
             progress_activity
           </span>
-          <span className="text-xs text-on-surface-variant">Loading trip records...</span>
+          <span className="text-xs text-on-surface-variant">
+            {language === 'bn' ? 'ট্রিপের তথ্য লোড হচ্ছে...' : 'Loading trip records...'}
+          </span>
         </div>
       ) : rides.length === 0 ? (
         <div className="py-16 text-center bg-surface-container-low rounded-2xl border border-surface-container-high/60 p-6 flex flex-col items-center gap-2">
-          <span className="material-symbols-outlined text-4xl text-outline">history</span>
-          <p className="text-sm font-semibold text-on-surface">No rides found yet</p>
+          <ElectricRickshawIcon className="w-12 h-12 text-outline" />
+          <p className="text-sm font-semibold text-on-surface">
+            {language === 'bn' ? 'কোনো ট্রিপের রেকর্ড পাওয়া যায়নি' : 'No rides found yet'}
+          </p>
           <p className="text-xs text-on-surface-variant">
-            Request your first pooled seat from Banani!
+            {language === 'bn' ? 'বনানী বা গুলশান থেকে আপনার প্রথম টেসলা রিকশা পুল বুক করুন!' : 'Request your first pooled seat from Banani!'}
           </p>
         </div>
       ) : (
@@ -65,7 +79,7 @@ export default function HistoryPage() {
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-primary" />
                     <span className="font-sora font-bold text-sm text-on-surface">
-                      {ride.pickup_area?.name || 'Banani'} → {ride.destination_area?.name || 'Mohakhali'}
+                      {ride.pickup_area?.name || (language === 'bn' ? 'বনানী' : 'Banani')} → {ride.destination_area?.name || (language === 'bn' ? 'মহাখালী' : 'Mohakhali')}
                     </span>
                   </div>
 
@@ -85,10 +99,13 @@ export default function HistoryPage() {
                 <div className="flex items-center justify-between text-xs text-on-surface-variant pt-1 border-t border-surface-container-high/40">
                   <div className="flex items-center gap-3">
                     <span>
-                      {ride.seats_needed} {ride.seats_needed === 1 ? 'seat' : 'seats'}
+                      {ride.seats_needed} {language === 'bn' ? 'সিট' : (ride.seats_needed === 1 ? 'seat' : 'seats')}
                     </span>
                     <span>•</span>
-                    <span className="capitalize">{ride.payment_method}</span>
+                    <span className="capitalize flex items-center gap-1">
+                      {ride.payment_method === 'tesla_pay' && <TeslaLogo className="w-2.5 h-2.5 inline text-primary" />}
+                      {ride.payment_method === 'tesla_pay' ? (language === 'bn' ? 'টেসলাপেই' : 'TeslaPay') : (language === 'bn' ? 'ক্যাশ' : 'Cash')}
+                    </span>
                     <span>•</span>
                     <span>{new Date(ride.requested_at).toLocaleDateString()}</span>
                   </div>

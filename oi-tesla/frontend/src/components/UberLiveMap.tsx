@@ -1,21 +1,21 @@
-'use client';
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Navigation, Zap, MapPin, Layers, Crosshair } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Coordinates {
   lat: number;
   lng: number;
   name: string;
+  name_bn: string;
 }
 
 const DHAKA_COORDINATES: Record<string, Coordinates> = {
-  'a1000000-0000-0000-0000-000000000001': { lat: 23.7937, lng: 90.4066, name: 'Banani' },
-  'a1000000-0000-0000-0000-000000000002': { lat: 23.7785, lng: 90.4182, name: 'Gulshan 1' },
-  'a1000000-0000-0000-0000-000000000003': { lat: 23.7776, lng: 90.4054, name: 'Mohakhali' },
-  'a1000000-0000-0000-0000-000000000004': { lat: 23.7516, lng: 90.3773, name: 'Dhanmondi' },
-  'default_pickup': { lat: 23.7937, lng: 90.4066, name: 'Banani (Road 11)' },
-  'default_destination': { lat: 23.7776, lng: 90.4054, name: 'Mohakhali (Wireless)' },
+  'a1000000-0000-0000-0000-000000000001': { lat: 23.7937, lng: 90.4066, name: 'Banani', name_bn: 'বনানী (১১ নং রোড)' },
+  'a1000000-0000-0000-0000-000000000002': { lat: 23.7785, lng: 90.4182, name: 'Gulshan 1', name_bn: 'গুলশান ১ (সার্কেল)' },
+  'a1000000-0000-0000-0000-000000000003': { lat: 23.7776, lng: 90.4054, name: 'Mohakhali', name_bn: 'মহাখালী (ওয়ারলেস গেট)' },
+  'a1000000-0000-0000-0000-000000000004': { lat: 23.7516, lng: 90.3773, name: 'Dhanmondi', name_bn: 'ধানমন্ডি (২৭ নং রোড)' },
+  'default_pickup': { lat: 23.7937, lng: 90.4066, name: 'Banani (Road 11)', name_bn: 'বনানী (১১ নং রোড)' },
+  'default_destination': { lat: 23.7776, lng: 90.4054, name: 'Mohakhali (Wireless)', name_bn: 'মহাখালী (ওয়ারলেস গেট)' },
 };
 
 interface UberLiveMapProps {
@@ -31,6 +31,7 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
   heightClass = 'h-52',
   showVehicleAnimation = true,
 }) => {
+  const { language } = useLanguage();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
@@ -143,24 +144,33 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
       const group = L.featureGroup([pMarker, dMarker]);
       map.fitBounds(group.getBounds(), { padding: [35, 35] });
 
-      // Moving Tesla Trike ("Bullet") Marker Animation
+      // Moving Electric Rickshaw ("Bullet" with Tesla Emblem) Marker Animation
       if (showVehicleAnimation) {
         const vehicleIcon = L.divIcon({
           className: 'custom-vehicle-icon',
           html: `
-            <div class="relative flex items-center justify-center animate-pulse">
-              <div class="w-8 h-8 rounded-full bg-[#00513f] border-2 border-[#46f1c5] shadow-lg flex items-center justify-center text-[#46f1c5]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.22.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-5h14v5z"/>
+            <div class="relative flex items-center justify-center">
+              <span class="absolute w-11 h-11 bg-[#46f1c5]/25 rounded-full animate-ping"></span>
+              <div class="w-10 h-10 rounded-full bg-[#002b20] border-2 border-[#46f1c5] shadow-[0_0_15px_rgba(70,241,197,0.7)] flex items-center justify-center p-1">
+                <!-- Authentic Dhaka 3-Wheeled Electric Rickshaw SVG with Tesla T Emblem -->
+                <svg width="26" height="26" viewBox="0 0 64 64" fill="none">
+                  <path d="M14 26 C14 15, 26 12, 38 12 C44 12, 48 15, 50 20 L50 34 L14 34 Z" fill="#46f1c5" fill-opacity="0.3" stroke="#46f1c5" stroke-width="2.5"/>
+                  <path d="M22 16 C23 22, 23 28, 23 34" stroke="#46f1c5" stroke-width="1.5" stroke-dasharray="2 2"/>
+                  <path d="M50 22 L58 30 L58 40 L50 40" stroke="#46f1c5" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M10 40 L58 40" stroke="#46f1c5" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="18" cy="48" r="7" stroke="#46f1c5" stroke-width="2.5" fill="#12171c"/>
+                  <circle cx="54" cy="48" r="7" stroke="#46f1c5" stroke-width="2.5" fill="#12171c"/>
+                  <!-- Stylized Tesla T Emblem on Rickshaw Battery -->
+                  <path d="M28 20 H34 M31 20 V25" stroke="#feb700" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </div>
-              <span class="absolute -bottom-4 whitespace-nowrap bg-[#1b2025] text-[#46f1c5] text-[8px] font-bold px-1 rounded border border-[#00513f]">
-                Bullet (86%)
+              <span class="absolute -bottom-5 whitespace-nowrap bg-[#0f1419] text-[#46f1c5] text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#00513f] shadow">
+                ⚡ Bullet (Tesla EV)
               </span>
             </div>
           `,
-          iconSize: [32, 32],
-          iconAnchor: [16, 16],
+          iconSize: [40, 40],
+          iconAnchor: [20, 20],
         });
 
         const vMarker = L.marker([pickupCoord.lat, pickupCoord.lng], { icon: vehicleIcon }).addTo(map);
@@ -191,7 +201,7 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
         mapInstanceRef.current = null;
       }
     };
-  }, [pickupId, destinationId, showVehicleAnimation, mapMode]);
+  }, [pickupId, destinationId, showVehicleAnimation, mapMode, language]);
 
   const handleRecenter = () => {
     if (mapInstanceRef.current && markersRef.current.length === 2) {
@@ -201,6 +211,8 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
       });
     }
   };
+
+  const displayName = (coord: Coordinates) => (language === 'bn' ? coord.name_bn : coord.name);
 
   return (
     <div className={`relative w-full ${heightClass} rounded-2xl overflow-hidden border border-surface-container-high/60 shadow-xl bg-surface-container-lowest`}>
@@ -215,7 +227,7 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
           </span>
           <span className="text-[10px] font-bold text-on-surface font-sora">
-            Dhaka Transit • Banani Corridor
+            {language === 'bn' ? 'ঢাকা টেসলা রিকশা ট্রানজিট • বনানী করিডোর' : 'Dhaka Tesla Rickshaw Transit • Banani'}
           </span>
         </div>
 
@@ -232,19 +244,20 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
       {/* Bottom Route Summary Bar */}
       <div className="absolute bottom-2.5 left-2.5 right-2.5 z-10 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-surface-container-high/80 flex items-center justify-between text-[11px] shadow-lg pointer-events-auto">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 font-semibold text-on-surface font-sora">
-            <span className="text-primary">{pickupCoord.name}</span>
+          <div className="flex items-center gap-1 font-semibold text-on-surface font-sora text-xs">
+            <span className="text-primary">{displayName(pickupCoord)}</span>
             <span className="text-on-surface-variant">→</span>
-            <span className="text-secondary">{destCoord.name}</span>
+            <span className="text-secondary">{displayName(destCoord)}</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
-            ⚡ Bullet Live GPS
+            {language === 'bn' ? '⚡ বুলেট রিকশা লাইভ GPS' : '⚡ Bullet Live GPS'}
           </span>
         </div>
       </div>
     </div>
   );
 };
+

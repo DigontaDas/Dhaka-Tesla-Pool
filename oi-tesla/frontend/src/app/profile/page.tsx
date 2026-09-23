@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth, CAST } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { ApiClient } from '../../lib/api';
 import { useRouter } from 'next/navigation';
+import { TeslaLogo } from '../../components/TeslaLogo';
+import { ElectricRickshawIcon } from '../../components/ElectricRickshawIcon';
 import { 
   User as UserIcon, 
   Phone, 
   Wallet, 
   Star, 
-  Car, 
   Clock, 
   CheckCircle2, 
   Edit3, 
@@ -23,6 +25,7 @@ import {
 
 export default function ProfilePage() {
   const { user, switchUser, logout, updateProfile, refreshUser } = useAuth();
+  const { t, language } = useLanguage();
   const router = useRouter();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -60,7 +63,7 @@ export default function ProfilePage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim()) {
-      setErrorMessage('Name and mobile number cannot be empty.');
+      setErrorMessage(language === 'bn' ? 'নাম এবং মোবাইল নম্বর খালি রাখা যাবে না।' : 'Name and mobile number cannot be empty.');
       return;
     }
 
@@ -77,7 +80,7 @@ export default function ProfilePage() {
       await refreshUser();
       setTimeout(() => setSaveSuccess(false), 3000);
     } else {
-      setErrorMessage(res.error || 'Failed to update profile.');
+      setErrorMessage(res.error || (language === 'bn' ? 'প্রোফাইল আপডেট ব্যর্থ হয়েছে।' : 'Failed to update profile.'));
     }
   };
 
@@ -88,16 +91,20 @@ export default function ProfilePage() {
           <UserIcon className="w-8 h-8" />
         </div>
         <div>
-          <h2 className="font-sora font-bold text-lg text-on-surface">Not Signed In</h2>
+          <h2 className="font-sora font-bold text-lg text-on-surface">
+            {language === 'bn' ? 'লগইন করা নেই' : 'Not Signed In'}
+          </h2>
           <p className="text-xs text-on-surface-variant max-w-xs mt-1">
-            Sign in to view your profile, manage your mobile number, and check ride history.
+            {language === 'bn' 
+              ? 'আপনার প্রোফাইল দেখতে এবং রাইড হিস্টোরি চেক করতে লগইন করুন।'
+              : 'Sign in to view your profile, manage your mobile number, and check ride history.'}
           </p>
         </div>
         <button
           onClick={() => router.push('/login')}
           className="px-6 py-2.5 rounded-full bg-primary hover:bg-primary/90 text-on-primary font-sora font-bold text-xs shadow-md transition"
         >
-          Go to Sign In
+          {language === 'bn' ? 'লগইন পৃষ্ঠায় যান' : 'Go to Sign In'}
         </button>
       </div>
     );
@@ -124,8 +131,9 @@ export default function ProfilePage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-sora font-bold text-base text-on-surface">{user.name}</h1>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/15 text-primary border border-primary/30">
-                  {user.role === 'driver' ? 'Tesla Pilot' : 'Passenger'}
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-primary/15 text-primary border border-primary/30 flex items-center gap-1">
+                  <TeslaLogo className="w-2.5 h-2.5" />
+                  {user.role === 'driver' ? (language === 'bn' ? 'টেসলা পাইলট' : 'Tesla Pilot') : (language === 'bn' ? 'যাত্রী' : 'Passenger')}
                 </span>
               </div>
               <p className="text-xs font-mono text-on-surface-variant mt-0.5 flex items-center gap-1">
@@ -140,31 +148,31 @@ export default function ProfilePage() {
             className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-on-surface border border-surface-container-highest transition active:scale-95"
           >
             <Edit3 className="w-3.5 h-3.5 text-primary" />
-            <span>{isEditing ? 'Cancel' : 'Edit'}</span>
+            <span>{isEditing ? (language === 'bn' ? 'বাতিল' : 'Cancel') : (language === 'bn' ? 'পরিবর্তন' : 'Edit')}</span>
           </button>
         </div>
 
-        {/* Quick Stats Grid */}
+        {/* Quick Stats Grid with Rickshaw & Tesla Icons */}
         <div className="grid grid-cols-3 gap-2.5 mt-5 pt-4 border-t border-surface-container-high/50">
           <div className="bg-surface-container rounded-xl p-2.5 text-center">
             <div className="flex items-center justify-center gap-1 text-secondary text-xs font-bold font-sora">
               <Star className="w-3.5 h-3.5 fill-secondary" />
               <span>{user.rating_avg.toFixed(1)}</span>
             </div>
-            <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">Rating</p>
+            <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">{t('rating')}</p>
           </div>
 
           <div className="bg-surface-container rounded-xl p-2.5 text-center">
             <div className="flex items-center justify-center gap-1 text-primary text-xs font-bold font-sora">
-              <Car className="w-3.5 h-3.5" />
+              <ElectricRickshawIcon className="w-4 h-4" />
               <span>{user.total_rides}</span>
             </div>
-            <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">Pools Taken</p>
+            <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">{t('pools_taken')}</p>
           </div>
 
           <div className="bg-surface-container rounded-xl p-2.5 text-center">
             <div className="flex items-center justify-center gap-1 text-on-surface text-xs font-bold font-sora">
-              <Zap className="w-3.5 h-3.5 text-primary" />
+              <TeslaLogo className="w-3.5 h-3.5 text-primary" />
               <span>৳{(user.tesla_pay_balance_poysha / 100).toFixed(0)}</span>
             </div>
             <p className="text-[10px] text-on-surface-variant mt-0.5 font-medium">TeslaPay</p>
@@ -181,9 +189,11 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <h3 className="font-sora font-bold text-sm text-on-surface flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-primary" />
-              Edit Personal Info
+              {language === 'bn' ? 'ব্যক্তিগত তথ্য পরিবর্তন' : 'Edit Personal Info'}
             </h3>
-            <span className="text-[10px] text-on-surface-variant">Instant update</span>
+            <span className="text-[10px] text-on-surface-variant">
+              {language === 'bn' ? 'তাৎক্ষণিক আপডেট' : 'Instant update'}
+            </span>
           </div>
 
           {errorMessage && (
@@ -195,7 +205,7 @@ export default function ProfilePage() {
 
           <div className="space-y-1">
             <label className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">
-              Full Name
+              {t('full_name')}
             </label>
             <input
               type="text"
@@ -209,7 +219,7 @@ export default function ProfilePage() {
 
           <div className="space-y-1">
             <label className="text-[11px] font-semibold text-on-surface-variant uppercase tracking-wider">
-              Mobile Number (Dhaka / Bangladesh)
+              {t('mobile_number')} {language === 'bn' ? '(ঢাকা / বাংলাদেশ)' : '(Dhaka / Bangladesh)'}
             </label>
             <input
               type="tel"
@@ -220,7 +230,9 @@ export default function ProfilePage() {
               required
             />
             <p className="text-[10px] text-on-surface-variant">
-              This mobile number is used for rider contact & login OTP.
+              {language === 'bn' 
+                ? 'এই মোবাইল নম্বরটি চালকের সাথে যোগাযোগ ও লগইনের জন্য ব্যবহৃত হবে।'
+                : 'This mobile number is used for rider contact & login OTP.'}
             </p>
           </div>
 
@@ -231,7 +243,7 @@ export default function ProfilePage() {
               className="flex-1 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-on-primary font-sora font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95 disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
-              <span>{saving ? 'Saving...' : 'Save Changes'}</span>
+              <span>{saving ? (language === 'bn' ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : t('save_changes')}</span>
             </button>
             <button
               type="button"
@@ -243,7 +255,7 @@ export default function ProfilePage() {
               }}
               className="px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-bright text-on-surface font-semibold text-xs border border-surface-container-highest transition"
             >
-              Cancel
+              {language === 'bn' ? 'বাতিল' : 'Cancel'}
             </button>
           </div>
         </form>
@@ -252,39 +264,46 @@ export default function ProfilePage() {
       {saveSuccess && (
         <div className="p-3.5 rounded-xl bg-primary/10 border border-primary/30 text-primary text-xs flex items-center gap-2 font-medium">
           <CheckCircle2 className="w-4 h-4" />
-          <span>Profile updated successfully! Name and mobile number are persisted.</span>
+          <span>
+            {language === 'bn' 
+              ? 'প্রোফাইল সফলভাবে আপডেট হয়েছে! নাম ও মোবাইল নম্বর সংরক্ষিত।' 
+              : 'Profile updated successfully! Name and mobile number are persisted.'}
+          </span>
         </div>
       )}
 
       {/* TeslaPay Wallet Card */}
       <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container-high/60 shadow-lg flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-            <Wallet className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/30">
+            <TeslaLogo className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <p className="text-[11px] text-on-surface-variant font-medium">TeslaPay Digital Wallet</p>
+            <p className="text-[11px] text-on-surface-variant font-medium">{t('wallet_balance')}</p>
             <h4 className="font-sora font-bold text-sm text-on-surface">
               ৳{(user.tesla_pay_balance_poysha / 100).toFixed(2)}{' '}
               <span className="text-[11px] text-on-surface-variant font-normal">
-                ({user.tesla_pay_balance_poysha} poysha)
+                ({user.tesla_pay_balance_poysha} {language === 'bn' ? 'পয়সা' : 'poysha'})
               </span>
             </h4>
           </div>
         </div>
 
         <button
-          onClick={() => alert('TeslaPay auto-reload simulated: +৳500 added to wallet!')}
+          onClick={() => alert(language === 'bn' ? 'টেসলাপেই অটো-রিচার্জ: +৳৫০০ ওয়ালেটে যোগ হয়েছে!' : 'TeslaPay auto-reload simulated: +৳500 added to wallet!')}
           className="px-3 py-1.5 rounded-full bg-surface-container-high hover:bg-surface-bright text-xs font-semibold text-primary border border-surface-container-highest transition active:scale-95"
         >
-          + Top Up
+          {t('top_up')}
         </button>
       </div>
 
       {/* Story Cast Quick-Switch Card */}
       <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container-high/60 shadow-lg space-y-2.5">
         <div className="flex items-center justify-between">
-          <h4 className="font-sora font-bold text-xs text-on-surface">Story Cast Switcher</h4>
+          <h4 className="font-sora font-bold text-xs text-on-surface flex items-center gap-1.5">
+            <ElectricRickshawIcon className="w-3.5 h-3.5 text-primary" />
+            <span>{language === 'bn' ? 'টেস্ট কাস্ট সুইচার' : 'Story Cast Switcher'}</span>
+          </h4>
           <span className="text-[10px] text-on-surface-variant">PRD Section 1</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
@@ -296,8 +315,8 @@ export default function ProfilePage() {
                 : 'bg-surface-container border-surface-container-high text-on-surface hover:bg-surface-bright'
             }`}
           >
-            <p className="font-semibold truncate">Nusrat Jahan</p>
-            <p className="text-[10px] text-on-surface-variant">Banani → Mohakhali</p>
+            <p className="font-semibold truncate">{language === 'bn' ? 'নুসরাত জাহান' : 'Nusrat Jahan'}</p>
+            <p className="text-[10px] text-on-surface-variant">{language === 'bn' ? 'বনানী → মহাখালী' : 'Banani → Mohakhali'}</p>
           </button>
 
           <button
@@ -308,8 +327,8 @@ export default function ProfilePage() {
                 : 'bg-surface-container border-surface-container-high text-on-surface hover:bg-surface-bright'
             }`}
           >
-            <p className="font-semibold truncate">Rafiq Ahmed</p>
-            <p className="text-[10px] text-on-surface-variant">Banani → Gulshan 1</p>
+            <p className="font-semibold truncate">{language === 'bn' ? 'রফিক আহমেদ' : 'Rafiq Ahmed'}</p>
+            <p className="text-[10px] text-on-surface-variant">{language === 'bn' ? 'বনানী → গুলশান ১' : 'Banani → Gulshan 1'}</p>
           </button>
 
           <button
@@ -320,8 +339,8 @@ export default function ProfilePage() {
                 : 'bg-surface-container border-surface-container-high text-on-surface hover:bg-surface-bright'
             }`}
           >
-            <p className="font-semibold truncate">Shirin Akter</p>
-            <p className="text-[10px] text-on-surface-variant">3rd Seat Contender</p>
+            <p className="font-semibold truncate">{language === 'bn' ? 'শিরিন আক্তার' : 'Shirin Akter'}</p>
+            <p className="text-[10px] text-on-surface-variant">{language === 'bn' ? '৩য় সিট যাত্রী' : '3rd Seat Contender'}</p>
           </button>
 
           <button
@@ -332,8 +351,11 @@ export default function ProfilePage() {
                 : 'bg-surface-container border-surface-container-high text-on-surface hover:bg-surface-bright'
             }`}
           >
-            <p className="font-semibold truncate">Pilot Jashim</p>
-            <p className="text-[10px] text-on-surface-variant">Bullet (3-seat EV)</p>
+            <p className="font-semibold truncate flex items-center gap-1">
+              <TeslaLogo className="w-2.5 h-2.5" />
+              <span>{language === 'bn' ? 'পাইলট জসিম' : 'Pilot Jashim'}</span>
+            </p>
+            <p className="text-[10px] text-on-surface-variant">{language === 'bn' ? 'বুলেট ৩-সিট টেসলা' : 'Bullet (3-seat EV)'}</p>
           </button>
         </div>
       </div>
@@ -343,25 +365,29 @@ export default function ProfilePage() {
         <div className="flex items-center justify-between">
           <h4 className="font-sora font-bold text-sm text-on-surface flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-primary" />
-            Personal Trip History
+            {t('my_history')}
           </h4>
           <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-surface-container text-on-surface-variant">
-            {history.length} Trips
+            {history.length} {language === 'bn' ? 'টি ট্রিপ' : 'Trips'}
           </span>
         </div>
 
         {loadingHistory ? (
           <div className="text-center py-6 text-xs text-on-surface-variant">
-            Loading your ride history...
+            {language === 'bn' ? 'রাইড হিস্টোরি লোড হচ্ছে...' : 'Loading your ride history...'}
           </div>
         ) : history.length === 0 ? (
           <div className="text-center py-6 space-y-1.5">
-            <p className="text-xs text-on-surface-variant">No trips recorded for {user.name} yet.</p>
+            <p className="text-xs text-on-surface-variant">
+              {language === 'bn' 
+                ? `${user.name}-এর কোনো পূর্ববর্তী ট্রিপ নেই।`
+                : `No trips recorded for ${user.name} yet.`}
+            </p>
             <button
               onClick={() => router.push('/')}
               className="text-xs text-primary font-bold hover:underline"
             >
-              Book your first micro-pool trip →
+              {language === 'bn' ? 'প্রথম টেসলা রিকশা পুল বুক করুন →' : 'Book your first micro-pool trip →'}
             </button>
           </div>
         ) : (
@@ -374,14 +400,14 @@ export default function ProfilePage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-1.5 font-semibold text-on-surface">
                     <MapPin className="w-3 h-3 text-primary" />
-                    <span>{ride.pickup_area?.name || 'Banani'}</span>
+                    <span>{ride.pickup_area?.name || (language === 'bn' ? 'বনানী' : 'Banani')}</span>
                     <span className="text-on-surface-variant">→</span>
-                    <span>{ride.destination_area?.name || 'Mohakhali'}</span>
+                    <span>{ride.destination_area?.name || (language === 'bn' ? 'মহাখালী' : 'Mohakhali')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-[10px] text-on-surface-variant">
                     <span>{new Date(ride.created_at).toLocaleDateString()}</span>
                     <span>•</span>
-                    <span>{ride.seats_needed} {ride.seats_needed > 1 ? 'seats' : 'seat'}</span>
+                    <span>{ride.seats_needed} {language === 'bn' ? 'সিট' : (ride.seats_needed > 1 ? 'seats' : 'seat')}</span>
                     <span>•</span>
                     <span className="uppercase text-primary font-bold">{ride.status}</span>
                   </div>
@@ -392,7 +418,7 @@ export default function ProfilePage() {
                     ৳{((ride.final_fare_poysha || ride.estimated_fare_poysha) / 100).toFixed(2)}
                   </div>
                   <span className="text-[9px] uppercase font-semibold text-on-surface-variant">
-                    {ride.is_pooled ? 'Pooled (30% off)' : 'Solo'}
+                    {ride.is_pooled ? (language === 'bn' ? 'শেয়ার্ড (৩০% ছাড়)' : 'Pooled (30% off)') : (language === 'bn' ? 'একক' : 'Solo')}
                   </span>
                 </div>
               </div>
@@ -411,7 +437,7 @@ export default function ProfilePage() {
           className="flex-1 py-3 rounded-xl bg-surface-container-high hover:bg-error/20 hover:text-error text-on-surface text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 border border-surface-container-highest"
         >
           <LogOut className="w-3.5 h-3.5" />
-          <span>Sign Out / Switch Account</span>
+          <span>{t('sign_out')}</span>
         </button>
       </div>
     </div>

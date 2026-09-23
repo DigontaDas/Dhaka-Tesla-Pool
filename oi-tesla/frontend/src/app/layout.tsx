@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
+import { LanguageProvider } from '../context/LanguageContext';
 import { StoryCastSwitcher } from '../components/StoryCastSwitcher';
 import { Navbar } from '../components/Navbar';
 import { BottomNav } from '../components/BottomNav';
@@ -21,7 +22,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <link
@@ -31,12 +32,14 @@ export default function RootLayout({
       </head>
       <body className="bg-surface text-on-surface min-h-screen flex flex-col font-sans selection:bg-primary-container selection:text-on-primary-fixed">
         <AuthProvider>
-          <StoryCastSwitcher />
-          <Navbar />
-          <main className="flex-1 max-w-md w-full mx-auto pb-24 px-4 pt-4">
-            {children}
-          </main>
-          <BottomNav />
+          <LanguageProvider>
+            <StoryCastSwitcher />
+            <Navbar />
+            <main className="flex-1 max-w-md w-full mx-auto pb-24 px-4 pt-4">
+              {children}
+            </main>
+            <BottomNav />
+          </LanguageProvider>
         </AuthProvider>
       </body>
     </html>

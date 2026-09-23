@@ -2,9 +2,12 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Phone, Zap, ArrowRight, Shield, Sparkles, AlertCircle } from 'lucide-react';
+import { User, Phone, ArrowRight, Shield, Sparkles, AlertCircle } from 'lucide-react';
+import { TeslaLogo } from '../../components/TeslaLogo';
+import { ElectricRickshawIcon } from '../../components/ElectricRickshawIcon';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -16,10 +19,12 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const { t, language } = useLanguage();
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || phone === '+880') {
-      setErrorMessage('Please provide your full name and valid Bangladesh mobile number.');
+      setErrorMessage(language === 'bn' ? 'অনুগ্রহ করে পুরো নাম ও সঠিক মোবাইল নম্বর দিন।' : 'Please provide your full name and valid Bangladesh mobile number.');
       return;
     }
 
@@ -41,7 +46,7 @@ export default function RegisterPage() {
         router.push('/');
       }
     } else {
-      setErrorMessage(res.error || 'Failed to create account. Please try another mobile number.');
+      setErrorMessage(res.error || (language === 'bn' ? 'অ্যাকাউন্ট তৈরি করা যায়নি। অনুগ্রহ করে অন্য মোবাইল নম্বর দিয়ে চেষ্টা করুন।' : 'Failed to create account. Please try another mobile number.'));
     }
   };
 
@@ -50,14 +55,17 @@ export default function RegisterPage() {
       {/* Brand Header */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-surface-container-high rounded-full border border-surface-container-highest text-xs text-primary font-bold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>New Account Registration</span>
+          <TeslaLogo className="w-3.5 h-3.5 text-primary" />
+          <span>{language === 'bn' ? 'নতুন অ্যাকাউন্ট নিবন্ধন' : 'New Account Registration'}</span>
         </div>
-        <h1 className="font-sora font-extrabold text-2xl text-on-surface tracking-tight">
-          Join <span className="text-primary">Oi Tesla</span>
-        </h1>
+        <div className="flex items-center justify-center gap-2">
+          <TeslaLogo className="w-7 h-7 text-primary" />
+          <h1 className="font-sora font-extrabold text-2xl text-on-surface tracking-tight">
+            {t('join_title')}
+          </h1>
+        </div>
         <p className="text-xs text-on-surface-variant max-w-xs mx-auto">
-          Start pooling rides or drive a 3-seater EV along Banani, Gulshan, and Mohakhali.
+          {t('join_subtitle')}
         </p>
       </div>
 
@@ -73,7 +81,7 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
-              Full Name
+              {t('full_name')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
@@ -92,7 +100,7 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
-              Mobile Phone Number
+              {t('phone_number')}
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-on-surface-variant">
@@ -112,7 +120,7 @@ export default function RegisterPage() {
           {/* Account Role Selector */}
           <div className="space-y-1.5">
             <label className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">
-              I Want To Join As
+              {language === 'bn' ? 'অ্যাকাউন্টের ধরণ' : 'I Want To Join As'}
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -126,10 +134,10 @@ export default function RegisterPage() {
               >
                 <div className="flex items-center gap-1.5">
                   <User className="w-4 h-4" />
-                  <span className="font-sora text-xs">Passenger</span>
+                  <span className="font-sora text-xs">{t('role_passenger')}</span>
                 </div>
                 <p className="text-[10px] text-on-surface-variant mt-1 font-normal">
-                  Pool seats & split fares
+                  {language === 'bn' ? 'সিট পুল ও ভাড়া ভাগ' : 'Pool seats & split fares'}
                 </p>
               </button>
 
@@ -143,11 +151,12 @@ export default function RegisterPage() {
                 }`}
               >
                 <div className="flex items-center gap-1.5">
-                  <Zap className="w-4 h-4" />
-                  <span className="font-sora text-xs">Tesla Pilot</span>
+                  <TeslaLogo className="w-4 h-4 text-primary" />
+                  <span className="font-sora text-xs">{t('role_driver')}</span>
                 </div>
-                <p className="text-[10px] text-on-surface-variant mt-1 font-normal">
-                  Operate 3-seat EV trike
+                <p className="text-[10px] text-on-surface-variant mt-1 font-normal flex items-center gap-1">
+                  <ElectricRickshawIcon className="w-3 h-3 text-primary inline" />
+                  <span>{language === 'bn' ? '৩-সিট টেসলা রিকশা চালান' : 'Operate 3-seat EV trike'}</span>
                 </p>
               </button>
             </div>
@@ -156,10 +165,10 @@ export default function RegisterPage() {
           {/* Welcome Promo Tag */}
           <div className="p-3 rounded-2xl bg-secondary/10 border border-secondary/30 flex items-center justify-between text-xs">
             <span className="flex items-center gap-1.5 text-secondary font-semibold">
-              <Zap className="w-4 h-4" />
-              Welcome Bonus
+              <TeslaLogo className="w-4 h-4 text-secondary" />
+              {t('welcome_bonus')}
             </span>
-            <span className="font-sora font-bold text-secondary">৳100 TeslaPay Credit</span>
+            <span className="font-sora font-bold text-secondary">{t('welcome_credit')}</span>
           </div>
 
           <button
@@ -167,16 +176,16 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary/90 text-on-primary font-sora font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 disabled:opacity-50"
           >
-            <span>{loading ? 'Creating Account...' : 'Complete Sign Up'}</span>
+            <span>{loading ? (language === 'bn' ? 'অ্যাকাউন্ট তৈরি হচ্ছে...' : 'Creating Account...') : t('register_submit')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
 
         <div className="text-center pt-2 border-t border-surface-container-high/40">
           <p className="text-xs text-on-surface-variant">
-            Already have an account?{' '}
+            {t('already_account')}{' '}
             <Link href="/login" className="text-primary font-bold hover:underline">
-              Sign in with mobile
+              {language === 'bn' ? 'মোবাইল দিয়ে লগইন করুন' : 'Sign in with mobile'}
             </Link>
           </p>
         </div>
@@ -184,7 +193,7 @@ export default function RegisterPage() {
 
       <div className="flex items-center justify-center gap-2 text-[11px] text-on-surface-variant/80">
         <Shield className="w-3.5 h-3.5 text-primary" />
-        <span>Secure registration • No credit card required</span>
+        <span>{language === 'bn' ? 'সুরক্ষিত রেজিস্ট্রেশন • কোনো ক্রেডিট কার্ড প্রয়োজন নেই' : 'Secure registration • No credit card required'}</span>
       </div>
     </div>
   );
