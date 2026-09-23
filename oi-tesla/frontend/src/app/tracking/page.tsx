@@ -4,6 +4,9 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { ApiClient } from '../../lib/api';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { PilotChatModal } from '../../components/PilotChatModal';
+import { CallPilotModal } from '../../components/CallPilotModal';
+import { UberLiveMap } from '../../components/UberLiveMap';
 
 function TrackingContent() {
   const { user } = useAuth();
@@ -14,6 +17,8 @@ function TrackingContent() {
   const [activePool, setActivePool] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [cancelling, setCancelling] = useState<boolean>(false);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
+  const [isCallOpen, setIsCallOpen] = useState<boolean>(false);
 
   const fetchActiveRide = async () => {
     if (!user) return;
@@ -176,6 +181,14 @@ function TrackingContent() {
         </div>
       </div>
 
+      {/* Interactive Uber Live Map Radar */}
+      <UberLiveMap
+        pickupId={activeRide.pickup_area_id}
+        destinationId={activeRide.destination_area_id}
+        heightClass="h-52"
+        showVehicleAnimation={activeRide.status !== 'cancelled' && activeRide.status !== 'completed'}
+      />
+
       {/* Driver & Vehicle Profile Card */}
       <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container-high/60 shadow-lg space-y-3">
         <div className="flex items-start justify-between gap-3">
@@ -226,7 +239,7 @@ function TrackingContent() {
         <div className="grid grid-cols-3 gap-2 pt-1">
           <button
             type="button"
-            onClick={() => alert('Dialing Driver Jashim Uddin (+8801912345678)...')}
+            onClick={() => setIsCallOpen(true)}
             className="flex items-center justify-center gap-1 py-2 px-2 bg-surface-container-high hover:bg-surface-bright active:scale-95 transition rounded-xl text-on-surface text-xs font-semibold"
           >
             <span className="material-symbols-outlined text-sm text-primary">phone</span>
@@ -234,7 +247,7 @@ function TrackingContent() {
           </button>
           <button
             type="button"
-            onClick={() => alert('Opening encrypted chat with Pilot Jashim...')}
+            onClick={() => setIsChatOpen(true)}
             className="flex items-center justify-center gap-1 py-2 px-2 bg-surface-container-high hover:bg-surface-bright active:scale-95 transition rounded-xl text-on-surface text-xs font-semibold"
           >
             <span className="material-symbols-outlined text-sm text-primary">chat</span>
@@ -336,6 +349,27 @@ function TrackingContent() {
           </div>
         </div>
       </div>
+
+      {/* Interactive Pilot Modals */}
+      <PilotChatModal
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        pilotName="Jashim Uddin (জসিম)"
+        vehicleName="Bullet (বুলেট)"
+        plateNumber="DH-Metro-TH-14-8821"
+        onCallPilot={() => {
+          setIsChatOpen(false);
+          setIsCallOpen(true);
+        }}
+      />
+
+      <CallPilotModal
+        isOpen={isCallOpen}
+        onClose={() => setIsCallOpen(false)}
+        pilotName="Jashim Uddin (জসিম)"
+        pilotPhone="+880 1912-345678"
+        vehicleName="Bullet (DH-Metro-TH-14-8821)"
+      />
     </div>
   );
 }

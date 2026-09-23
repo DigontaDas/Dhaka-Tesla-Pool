@@ -37,15 +37,17 @@ export const Navbar: React.FC = () => {
             </span>
           </div>
 
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
+          <Link
+            href="/profile"
+            className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition hover:scale-105 active:scale-95 shadow ${
               role === 'driver'
                 ? 'bg-secondary-container text-on-secondary-container'
                 : 'bg-primary text-on-primary'
             }`}
+            title="View Profile"
           >
             {user?.name ? user.name.charAt(0) : 'U'}
-          </div>
+          </Link>
         </div>
       </div>
     </header>

@@ -13,12 +13,14 @@ export const BottomNav: React.FC = () => {
     { label: 'Book', href: '/', icon: 'local_taxi' },
     { label: 'Tracking', href: '/tracking', icon: 'navigation' },
     { label: 'History', href: '/history', icon: 'history' },
+    { label: 'Profile', href: '/profile', icon: 'person' },
   ];
 
   const driverTabs = [
     { label: 'Cockpit', href: '/driver', icon: 'electric_rickshaw' },
     { label: 'Earnings', href: '/driver/earnings', icon: 'payments' },
-    { label: 'Rider View', href: '/', icon: 'person' },
+    { label: 'Profile', href: '/profile', icon: 'person' },
+    { label: 'Rider View', href: '/', icon: 'swap_horiz' },
   ];
 
   const tabs = role === 'driver' ? driverTabs : passengerTabs;

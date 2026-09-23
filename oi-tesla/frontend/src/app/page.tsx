@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ApiClient } from '../lib/api';
 import { useRouter } from 'next/navigation';
+import { UberLiveMap } from '../components/UberLiveMap';
 
 export default function BookRidePage() {
   const { user, role } = useAuth();
@@ -95,61 +96,13 @@ export default function BookRidePage() {
         </div>
       </div>
 
-      {/* Interactive Dhaka Transit Radar Map Card (SVG Artwork) */}
-      <div className="relative w-full h-44 rounded-2xl overflow-hidden bg-surface-container-lowest border border-surface-container-high/60 shadow-lg">
-        <svg
-          className="absolute inset-0 w-full h-full object-cover"
-          fill="none"
-          viewBox="0 0 400 200"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <radialGradient cx="50%" cy="50%" id="tealPulseGlow" r="50%">
-              <stop offset="0%" stopColor="#46f1c5" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#46f1c5" stopOpacity="0" />
-            </radialGradient>
-            <linearGradient id="roadTeal" x1="0" x2="1" y1="0" y2="1">
-              <stop offset="0%" stopColor="#1b2025" />
-              <stop offset="50%" stopColor="#00513f" />
-              <stop offset="100%" stopColor="#1b2025" />
-            </linearGradient>
-          </defs>
-
-          {/* Dhaka Arteries Mesh */}
-          <path d="M-20 40 Q 120 70 200 30 T 420 80" stroke="#252a30" strokeLinecap="round" strokeWidth="8" />
-          <path d="M40 210 Q 110 110 180 120 T 360 -10" stroke="#252a30" strokeLinecap="round" strokeWidth="12" />
-
-          {/* Electric Route (Banani to Mohakhali) */}
-          <path d="M70 50 Q 150 90 220 140 T 350 170" id="transitRoute1" stroke="url(#roadTeal)" strokeDasharray="4 4" strokeWidth="5" />
-          <path d="M190 30 L 220 140 L 120 180" stroke="#30353b" strokeWidth="4" />
-
-          {/* Nodes */}
-          <circle cx="80" cy="55" fill="#46f1c5" r="5" />
-          <text fill="#bacac2" fontFamily="Sora" fontSize="9" fontWeight="600" x="75" y="44">Banani</text>
-
-          <circle cx="280" cy="85" fill="#feb700" r="4" />
-          <text fill="#bacac2" fontFamily="Sora" fontSize="9" fontWeight="600" x="270" y="78">Gulshan 1</text>
-
-          <circle cx="220" cy="140" fill="#46f1c5" r="5" />
-          <text fill="#bacac2" fontFamily="Sora" fontSize="9" fontWeight="600" x="215" y="158">Mohakhali</text>
-
-          {/* Moving Bullet e-trike simulation */}
-          <circle fill="#46f1c5" r="4">
-            <animateMotion dur="6s" path="M70 50 Q 150 90 220 140 T 350 170" repeatCount="indefinite" />
-          </circle>
-        </svg>
-
-        {/* Live Radar Tag */}
-        <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/90 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-[11px] font-semibold text-on-surface">Bullet active • 3 mins away</span>
-        </div>
-
-        <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md flex items-center gap-1">
-          <span className="material-symbols-outlined text-xs text-primary">bolt</span>
-          <span className="text-[11px] font-bold text-primary">Stand: Chairman Bari</span>
-        </div>
-      </div>
+      {/* Interactive Uber Live Dhaka Transit Map */}
+      <UberLiveMap
+        pickupId={pickupId}
+        destinationId={destinationId}
+        heightClass="h-48"
+        showVehicleAnimation={true}
+      />
 
       {/* Route & Booking Card */}
       <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container-high/60 shadow-xl flex flex-col gap-3">

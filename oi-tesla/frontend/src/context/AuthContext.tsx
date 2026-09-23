@@ -20,6 +20,8 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   login: (phone: string) => Promise<boolean>;
+  register: (data: { name: string; phone: string; role?: 'passenger' | 'driver' }) => Promise<{ success: boolean; error?: string }>;
+  updateProfile: (data: { name?: string; phone?: string }) => Promise<{ success: boolean; error?: string }>;
   switchUser: (userId: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -87,6 +89,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const register = async (data: { name: string; phone: string; role?: 'passenger' | 'driver' }): Promise<{ success: boolean; error?: string }> => {
+    setLoading(true);
+    try {
+      const res = await ApiClient.post('/auth/register', data);
+      if (res.success && res.user) {
+        setUser(res.user);
+        setToken(res.token);
+        ApiClient.setAuth(res.token, res.user.id);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('oi_tesla_user_id', res.user.id);
+        }
+        return { success: true };
+      }
+      return { success: false, error: res.error || 'Failed to create account' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Registration error' };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (data: { name?: string; phone?: string }): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await ApiClient.patch('/auth/profile', data);
+      if (res.success && res.user) {
+        setUser(res.user);
+        return { success: true };
+      }
+      return { success: false, error: res.error || 'Failed to update profile' };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Update error' };
+    }
+  };
+
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -112,6 +149,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         token,
         loading,
         login,
+        register,
+        updateProfile,
         switchUser,
         logout,
         refreshUser,

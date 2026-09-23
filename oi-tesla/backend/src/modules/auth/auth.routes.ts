@@ -80,6 +80,39 @@ router.get('/me', authMiddleware, (req: AuthenticatedRequest, res: Response) => 
   });
 });
 
+// Update user profile (name, phone)
+router.patch('/profile', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user!.id;
+  const { name, phone } = req.body;
+
+  if (phone) {
+    const existing = store.getUserByPhone(phone);
+    if (existing && existing.id !== userId) {
+      return res.status(409).json({ success: false, error: 'Phone number already registered by another user' });
+    }
+  }
+
+  const updates: { name?: string; phone?: string } = {};
+  if (name && typeof name === 'string' && name.trim()) {
+    updates.name = name.trim();
+  }
+  if (phone && typeof phone === 'string' && phone.trim()) {
+    updates.phone = phone.trim();
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ success: false, error: 'No valid fields provided to update' });
+  }
+
+  const updatedUser = store.updateUser(userId, updates);
+
+  return res.json({
+    success: true,
+    user: updatedUser,
+  });
+});
+
+
 // Get story cast for easy evaluator login
 router.get('/cast', (req: Request, res: Response) => {
   const jashim = store.getUserById(STORY_IDS.DRIVER_JASHIM);
