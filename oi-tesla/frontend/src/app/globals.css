@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #0f1419;
+    color: #dee3ea;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Custom scrollbars hidden for sleek mobile-app look */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pulse & glow effects */
+.glow-teal {
+  box-shadow: 0 0 20px rgba(0, 212, 170, 0.35);
+}
+
+.glow-yellow {
+  box-shadow: 0 0 20px rgba(254, 183, 0, 0.35);
+}
+
+.pulse-ring {
+  animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
