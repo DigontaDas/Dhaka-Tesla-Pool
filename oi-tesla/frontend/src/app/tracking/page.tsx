@@ -390,7 +390,7 @@ function TrackingContent() {
           <div>
             <span className="text-on-surface-variant">{t('your_share')}</span>
             <div className="font-bold text-primary font-sora text-sm">
-              ৳{((activeRide.final_fare_poysha || activeRide.estimated_fare_poysha) / 100).toFixed(2)}
+              ৳{(((activeRide.final_fare_poysha ?? activeRide.estimated_fare_poysha ?? 0)) / 100).toFixed(2)}
             </div>
           </div>
           <div className="text-right">
