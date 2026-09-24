@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 import { LanguageProvider } from '../context/LanguageContext';
@@ -9,6 +9,20 @@ import { BottomNav } from '../components/BottomNav';
 export const metadata: Metadata = {
   title: 'Oi Tesla — Dhaka Electric Ride-Pooling',
   description: 'Share a seat. Split the fare. Survive Dhaka traffic with Bullet & Jashim.',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/icon.svg',
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Oi Tesla',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#00513f',
 };
 
 export default function RootLayout({
