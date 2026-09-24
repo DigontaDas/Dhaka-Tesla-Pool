@@ -57,9 +57,42 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
     import('leaflet').then((L) => {
       if (!isMounted || !mapContainerRef.current) return;
 
+      // Patch Leaflet DomUtil.getPosition to prevent crash on detached/unmounted panes
+      if (L && L.DomUtil && !(L.DomUtil as any)._pos_patched) {
+        const origGetPosition = L.DomUtil.getPosition;
+        L.DomUtil.getPosition = function (el: any) {
+          if (!el) {
+            return new L.Point(0, 0);
+          }
+          return origGetPosition.call(this, el);
+        };
+        (L.DomUtil as any)._pos_patched = true;
+      }
+
+      // Patch Leaflet Map.prototype._onZoomTransitionEnd to avoid accessing null mapPane
+      if (L && L.Map && L.Map.prototype && !(L.Map.prototype as any)._zoom_patched) {
+        const origZoomTransitionEnd = (L.Map.prototype as any)._onZoomTransitionEnd;
+        (L.Map.prototype as any)._onZoomTransitionEnd = function () {
+          if (!this._mapPane) {
+            this._animatingZoom = false;
+            return;
+          }
+          if (origZoomTransitionEnd) {
+            origZoomTransitionEnd.call(this);
+          }
+        };
+        (L.Map.prototype as any)._zoom_patched = true;
+      }
+
       // Clean up previous instance if exists
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          mapInstanceRef.current.stop();
+          mapInstanceRef.current.off();
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
         mapInstanceRef.current = null;
       }
 
@@ -72,6 +105,9 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
         zoom: 14,
         zoomControl: false,
         attributionControl: false,
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
       });
 
       // Sleek Uber-style Dark Matter tiles from CartoDB (High-contrast, dark mode)
@@ -140,9 +176,9 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
       }).addTo(map);
       polylineRef.current = routeLine;
 
-      // Fit bounds with comfortable padding
+      // Fit bounds with comfortable padding (disable animated transitions)
       const group = L.featureGroup([pMarker, dMarker]);
-      map.fitBounds(group.getBounds(), { padding: [35, 35] });
+      map.fitBounds(group.getBounds(), { padding: [35, 35], animate: false });
 
       // Moving Electric Rickshaw ("Bullet" with Tesla Emblem) Marker Animation
       if (showVehicleAnimation) {
@@ -179,11 +215,18 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
         // Smooth continuous cruising animation
         let progress = 0;
         const animate = () => {
+          if (!isMounted || !mapInstanceRef.current || !vehicleMarkerRef.current) return;
           progress = (progress + 0.003) % 1;
           const currentLat = pickupCoord.lat + (destCoord.lat - pickupCoord.lat) * progress;
           const currentLng = pickupCoord.lng + (destCoord.lng - pickupCoord.lng) * progress;
-          vMarker.setLatLng([currentLat, currentLng]);
-          animationFrameRef.current = requestAnimationFrame(animate);
+          try {
+            vMarker.setLatLng([currentLat, currentLng]);
+            if (isMounted) {
+              animationFrameRef.current = requestAnimationFrame(animate);
+            }
+          } catch (err) {
+            // Ignore updates during unmount
+          }
         };
         animationFrameRef.current = requestAnimationFrame(animate);
       }
@@ -195,9 +238,16 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
       isMounted = false;
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
+        try {
+          mapInstanceRef.current.stop();
+          mapInstanceRef.current.off();
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          // Suppress unmount errors
+        }
         mapInstanceRef.current = null;
       }
     };
@@ -206,8 +256,9 @@ export const UberLiveMap: React.FC<UberLiveMapProps> = ({
   const handleRecenter = () => {
     if (mapInstanceRef.current && markersRef.current.length === 2) {
       import('leaflet').then((L) => {
+        if (!mapInstanceRef.current) return;
         const group = L.featureGroup(markersRef.current);
-        mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [35, 35] });
+        mapInstanceRef.current.fitBounds(group.getBounds(), { padding: [35, 35], animate: false });
       });
     }
   };
