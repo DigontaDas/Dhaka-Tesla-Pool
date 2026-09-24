@@ -8,7 +8,7 @@
 
 ## 🎥 6-Minute Video Walkthrough
 > **Watch the full engineering architecture and live product tour:**  
-> 🔗 **[Click Here to Watch the Loom Demo Video](https://www.loom.com/share/YOUR_LOOM_ID_HERE)** *(Replace with your recorded Loom/YouTube link)*
+> 🔗 **[Click Here to Watch the Loom Demo Video](https://www.loom.com/share/YOUR_LOOM_ID_HERE)**
 >
 > - **0:00 - 1:00**: Problem space, Dhaka commuters, and the grassroots electric "Tesla" trike idea.
 > - **1:00 - 3:00**: Architecture, ERD, integer Poysha ledger, atomic seat mutex, and key trade-offs.
