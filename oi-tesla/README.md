@@ -3,22 +3,11 @@
 > **Share a seat. Split the fare. Survive Dhaka traffic.**  
 > *Production-minded micro-mobility ride-pooling platform built for Banani, Gulshan, and Mohakhali.*
 
-[![Walkthrough Video](https://img.shields.io/badge/Loom_Walkthrough-Watch_Video_(6_Min)-ff5a5f?style=for-the-badge&logo=loom&logoColor=white)](#-6-minute-video-walkthrough)
-[![CI/CD Tests](https://img.shields.io/badge/tests-23%20passed-46f1c5?style=flat-square)](./backend)
+[![CI/CD Tests](https://img.shields.io/badge/tests-20%20passed-46f1c5?style=flat-square)](./backend)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20ready-feb700?style=flat-square)](./docker-compose.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-v20%2B-green?style=flat-square)](https://nodejs.org)
 [![Next.js](https://img.shields.io/badge/Next.js-14%20App%20Router-black?style=flat-square)](https://nextjs.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-3ecf8e?style=flat-square)](https://supabase.com)
-
----
-
-## 🎥 6-Minute Video Walkthrough
-> **Watch the complete architectural explanation and product tour:**  
-> 🔗 **[Click Here to Watch the Loom Demo Video](https://www.loom.com/share/YOUR_LOOM_ID_HERE)** *(Replace with your recorded Loom/YouTube link)*
->
-> - **0:00 - 1:00**: Dhaka's congestion problem, commuter archetypes, and the grassroots electric "Tesla" trike solution.
-> - **1:00 - 3:00**: System architecture, 10-table ERD, integer Poysha accounting, state transitions, and concurrency trade-offs.
-> - **3:00 - 6:00**: End-to-end product tour (Passenger flow, Pilot Jashim's 100% Bangla cockpit, 3-seat race condition edge case, and 23 passing tests).
 
 ---
 
