@@ -2,6 +2,7 @@
 
 > **Share a seat. Split the fare. Survive Dhaka traffic.**  
 > *Production-minded micro-mobility ride-pooling platform built for Banani, Gulshan, and Mohakhali.*
+> *Demonstration of the project: [![Demonstration](https://www.loom.com/share/0df8fb0e447b4f529b1e2be2b1c44a53)]*
 
 [![CI/CD Tests](https://img.shields.io/badge/tests-23%20passed-3ecf8e?style=for-the-badge&logo=vitest&logoColor=white)](./oi-tesla/backend)
 [![Docker Ready](https://img.shields.io/badge/docker-compose%20ready-2496ed?style=for-the-badge&logo=docker&logoColor=white)](./docker-compose.yml)
