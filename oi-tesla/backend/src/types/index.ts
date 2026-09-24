@@ -84,6 +84,8 @@ export interface RideRequest {
   destination_area?: Area;
   pool_id?: string;
   seat_number?: number;
+  driver?: User;
+  vehicle?: Vehicle;
 }
 
 export interface Pool {

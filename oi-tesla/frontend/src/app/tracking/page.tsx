@@ -49,7 +49,7 @@ function TrackingContent() {
 
   useEffect(() => {
     fetchActiveRide();
-    const interval = setInterval(fetchActiveRide, 3000); // Polling for real-time state updates
+    const interval = setInterval(fetchActiveRide, 1500); // Polling for real-time state updates
     return () => clearInterval(interval);
   }, [user]);
 
@@ -224,60 +224,106 @@ function TrackingContent() {
 
       {/* Driver & Vehicle Profile Card */}
       <div className="bg-surface-container-low rounded-2xl p-4 border border-surface-container-high/60 shadow-lg space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center justify-center text-lg shadow-md border-2 border-primary/30">
-              JU
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h3 className="font-sora font-bold text-sm text-on-surface">
-                  {language === 'bn' ? 'জসিম উদ্দিন (পাইলট)' : 'Jashim Uddin'}
-                </h3>
-                <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold flex items-center gap-0.5">
-                  <TeslaLogo className="w-2.5 h-2.5" />
-                  Pilot
+        {activeRide.status === 'requested' ? (
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-secondary" />
+                </span>
+                <span className="text-xs font-bold text-secondary font-sora">
+                  {language === 'bn' ? 'পাইলট অনুমোদনের অপেক্ষা...' : 'Waiting for Pilot to Accept...'}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="flex items-center text-xs font-bold text-secondary">
-                  <span className="material-symbols-outlined text-xs mr-0.5">star</span>
-                  4.9
-                </span>
-                <span className="text-xs text-on-surface-variant">
-                  • {language === 'bn' ? '১,৪২০টি পুল সফল' : '1,420 pools completed'}
-                </span>
-              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant">
+                বনানী স্ট্যান্ড
+              </span>
             </div>
-          </div>
 
-          <div className="text-right">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-container-high rounded-full text-xs font-bold text-primary border border-surface-container-highest">
-              <span className="material-symbols-outlined text-xs">electric_bolt</span> 86%
-            </span>
-          </div>
-        </div>
-
-        {/* Vehicle Badge - Authentic Electric Rickshaw with Tesla T Badge */}
-        <div className="bg-surface-container rounded-xl p-2.5 flex items-center justify-between border border-surface-container-high/40">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 border border-primary/30 shadow-sm">
-              <ElectricRickshawIcon className="w-7 h-7" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-bold text-on-surface truncate">
-                  {language === 'bn' ? 'বুলেট (Bullet) · টেসলা সুপার-৩ রিকশা' : 'Bullet · Super-3 Tesla E-Rickshaw'}
-                </p>
-                <TeslaLogo className="w-3 h-3 text-primary shrink-0" />
+            <div className="bg-surface-container rounded-xl p-3 flex items-center justify-between border border-surface-container-high/60">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center text-secondary border border-secondary/30 font-bold">
+                  JU
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-on-surface">জসিম উদ্দিন (Jashim Uddin)</h4>
+                    <span className="text-[9px] px-1 rounded bg-primary/20 text-primary font-bold">★ ৪.৯</span>
+                  </div>
+                  <p className="text-[11px] text-on-surface-variant">বুলেট ৩-সিট টেসলা রিকশা • স্ট্যান্ডে অনলাইন</p>
+                </div>
               </div>
-              <p className="text-[10px] text-on-surface-variant font-mono">ঢাকা মেট্রো-থ-১৪-৮৮২১ (DH-Metro-TH-14-8821)</p>
+              <button
+                type="button"
+                onClick={() => router.push('/driver')}
+                className="px-2.5 py-1.5 rounded-lg bg-secondary-container text-on-secondary-container text-[11px] font-bold hover:scale-105 active:scale-95 transition shadow-xs"
+              >
+                {language === 'bn' ? 'ককপিটে যান' : 'Go to Cockpit'}
+              </button>
             </div>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-surface-container-highest text-primary shrink-0">
-            {language === 'bn' ? 'নীরব ইভি' : 'Quiet EV'}
-          </span>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container font-bold flex items-center justify-center text-lg shadow-md border-2 border-primary/30">
+                  {activeRide.driver?.name ? activeRide.driver.name.substring(0, 2).toUpperCase() : 'JU'}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-sora font-bold text-sm text-on-surface">
+                      {activeRide.driver?.name || (language === 'bn' ? 'জসিম উদ্দিন (পাইলট)' : 'Jashim Uddin')}
+                    </h3>
+                    <span className="px-1.5 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold flex items-center gap-0.5">
+                      <TeslaLogo className="w-2.5 h-2.5" />
+                      Pilot
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="flex items-center text-xs font-bold text-secondary">
+                      <span className="material-symbols-outlined text-xs mr-0.5">star</span>
+                      {activeRide.driver?.rating_avg || 4.9}
+                    </span>
+                    <span className="text-xs text-on-surface-variant">
+                      • {activeRide.seat_number ? (language === 'bn' ? `সিট ${activeRide.seat_number} বরাদ্দ` : `Seat ${activeRide.seat_number} Allocated`) : (language === 'bn' ? 'সিট বরাদ্দ' : 'Seat Assigned')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface-container-high rounded-full text-xs font-bold text-primary border border-surface-container-highest">
+                  <span className="material-symbols-outlined text-xs">electric_bolt</span>
+                  {activeRide.vehicle?.battery_pct || 86}%
+                </span>
+              </div>
+            </div>
+
+            {/* Vehicle Badge - Authentic Electric Rickshaw with Tesla T Badge */}
+            <div className="bg-surface-container rounded-xl p-2.5 flex items-center justify-between border border-surface-container-high/40">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-primary shrink-0 border border-primary/30 shadow-sm">
+                  <ElectricRickshawIcon className="w-7 h-7" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-on-surface truncate">
+                      {activeRide.vehicle?.name || 'Bullet'} · {language === 'bn' ? 'টেসলা সুপার-৩ রিকশা' : 'Super-3 Tesla E-Rickshaw'}
+                    </p>
+                    <TeslaLogo className="w-3 h-3 text-primary shrink-0" />
+                  </div>
+                  <p className="text-[10px] text-on-surface-variant font-mono">
+                    {activeRide.vehicle?.plate_number || 'ঢাকা মেট্রো-থ-১৪-৮৮২১ (DH-Metro-TH-14-8821)'}
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-surface-container-highest text-primary shrink-0">
+                {language === 'bn' ? 'নীরব ইভি' : 'Quiet EV'}
+              </span>
+            </div>
+          </>
+        )}
 
         {/* Quick Driver Actions */}
         <div className="grid grid-cols-3 gap-2 pt-1">

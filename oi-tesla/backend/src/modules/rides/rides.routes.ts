@@ -5,11 +5,27 @@ import { FareCalculator } from '../../utils/fareCalculator.js';
 
 const router = Router();
 
+// Get available Tesla drivers nearby (for passenger booking preview)
+router.get('/available-drivers', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+  const drivers = store.getAvailableDriversSummary();
+  return res.json({
+    success: true,
+    data: drivers,
+  });
+});
+
 // Passenger requests a ride
-router.post('/request', authMiddleware, (req: AuthenticatedRequest, res: Response) => {
+router.post('/request', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { pickup_area_id, destination_area_id, seats_needed, payment_method } = req.body;
+    const { pickup_area_id, destination_area_id, seats_needed, payment_method, auto_assign = true } = req.body;
     const passengerId = req.user!.id;
+
+    if (req.user!.role === 'driver') {
+      return res.status(400).json({
+        success: false,
+        error: 'Drivers cannot request rides as passengers. Please switch to a passenger account (e.g. Nusrat or Rafiq).',
+      });
+    }
 
     if (!pickup_area_id || !destination_area_id) {
       return res.status(400).json({
@@ -26,9 +42,27 @@ router.post('/request', authMiddleware, (req: AuthenticatedRequest, res: Respons
       payment_method: payment_method || 'cash',
     });
 
+    // If auto_assign is enabled (Uber-style instant dispatch):
+    if (auto_assign) {
+      const availableDrivers = store.getOnlineDriversWithCapacity(ride.seats_needed);
+      if (availableDrivers.length > 0) {
+        const assignedDriver = availableDrivers[0];
+        const vehicle = store.getVehicleByOwnerId(assignedDriver.id);
+        let pool = store.getActivePoolForDriver(assignedDriver.id);
+        if (!pool && vehicle) {
+          pool = store.createPool(assignedDriver.id, vehicle.id);
+        }
+        if (pool) {
+          await store.claimPoolSeat(pool.id, ride.id, ride.seats_needed);
+        }
+      }
+    }
+
+    const updatedRide = store.getRideById(ride.id);
+
     return res.status(201).json({
       success: true,
-      data: ride,
+      data: updatedRide || ride,
     });
   } catch (error: any) {
     return res.status(400).json({

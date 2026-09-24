@@ -134,6 +134,23 @@ export class Store {
       updated_at: new Date().toISOString(),
     };
     this.users.set(shirin.id, shirin);
+
+    // Seed 2 realistic pending requests from passengers at Banani Stand
+    this.createRideRequest({
+      passenger_id: nusrat.id,
+      pickup_area_id: STORY_IDS.AREA_BANANI,
+      destination_area_id: STORY_IDS.AREA_MOHAKHALI,
+      seats_needed: 1,
+      payment_method: 'cash',
+    });
+
+    this.createRideRequest({
+      passenger_id: rafiq.id,
+      pickup_area_id: STORY_IDS.AREA_BANANI,
+      destination_area_id: STORY_IDS.AREA_GULSHAN_1,
+      seats_needed: 1,
+      payment_method: 'tesla_pay',
+    });
   }
 
   // --- Users ---
@@ -262,14 +279,71 @@ export class Store {
     return rides.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }
 
-  public getPendingRideRequests(): RideRequest[] {
+  public getPendingRideRequests(excludeUserId?: string): RideRequest[] {
     const rides: RideRequest[] = [];
     for (const r of this.rideRequests.values()) {
       if (r.status === 'requested') {
-        rides.push(this.enrichRideRequest(r));
+        if (!excludeUserId || r.passenger_id !== excludeUserId) {
+          rides.push(this.enrichRideRequest(r));
+        }
       }
     }
-    return rides;
+    return rides.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }
+
+  public getOnlineDriversWithCapacity(seatsNeeded: number = 1): User[] {
+    const availableDrivers: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.role === 'driver' && (user.driver_status === 'online' || !user.driver_status)) {
+        const vehicle = this.getVehicleByOwnerId(user.id);
+        if (!vehicle || !vehicle.is_active) continue;
+
+        const activePool = this.getActivePoolForDriver(user.id);
+        if (!activePool) {
+          if (vehicle.capacity >= seatsNeeded) {
+            availableDrivers.push(user);
+          }
+        } else if (activePool.status === 'matched' || activePool.status === 'driver_arrived') {
+          if (activePool.max_capacity - activePool.occupied_seats >= seatsNeeded) {
+            availableDrivers.push(user);
+          }
+        }
+      }
+    }
+    return availableDrivers;
+  }
+
+  public getAvailableDriversSummary() {
+    const list: any[] = [];
+    for (const user of this.users.values()) {
+      if (user.role === 'driver' && (user.driver_status === 'online' || !user.driver_status)) {
+        const vehicle = this.getVehicleByOwnerId(user.id);
+        const pool = this.getActivePoolForDriver(user.id);
+        const occupied = pool?.occupied_seats || 0;
+        const totalSeats = vehicle?.capacity || 3;
+        list.push({
+          id: user.id,
+          name: user.name,
+          phone: user.phone,
+          rating_avg: user.rating_avg,
+          total_rides: user.total_rides,
+          driver_status: user.driver_status || 'online',
+          vehicle: vehicle
+            ? {
+                id: vehicle.id,
+                name: vehicle.name,
+                plate_number: vehicle.plate_number,
+                battery_pct: vehicle.battery_pct,
+                capacity: vehicle.capacity,
+              }
+            : null,
+          available_seats: totalSeats - occupied,
+          stand_name: 'Banani Road 11 Stand',
+          stand_name_bn: 'বনানী ১১ নং রোড স্ট্যান্ড',
+        });
+      }
+    }
+    return list;
   }
 
   /**
@@ -694,6 +768,17 @@ export class Store {
       }
     }
 
+    let driver: User | undefined;
+    let vehicle: Vehicle | undefined;
+
+    if (pool_id) {
+      const pool = this.pools.get(pool_id);
+      if (pool) {
+        driver = this.users.get(pool.driver_id);
+        vehicle = this.vehicles.get(pool.vehicle_id);
+      }
+    }
+
     return {
       ...ride,
       passenger,
@@ -701,6 +786,8 @@ export class Store {
       destination_area,
       pool_id,
       seat_number,
+      driver,
+      vehicle,
     };
   }
 

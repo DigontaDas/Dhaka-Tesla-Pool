@@ -41,8 +41,14 @@ export default function DriverCockpitPage() {
   };
 
   useEffect(() => {
+    if (user?.role === 'driver') {
+      fetchDriverData();
+    }
+  }, [user]);
+
+  useEffect(() => {
     fetchDriverData();
-    const timer = setInterval(fetchDriverData, 2500);
+    const timer = setInterval(fetchDriverData, 1500);
     return () => clearInterval(timer);
   }, []);
 
@@ -120,6 +126,14 @@ export default function DriverCockpitPage() {
 
         {/* Battery & Status Badge */}
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={fetchDriverData}
+            className="w-8 h-8 rounded-full bg-surface-container-high border border-surface-container-highest flex items-center justify-center text-on-surface hover:text-primary transition active:rotate-180"
+            title="রিফ্রেশ করুন"
+          >
+            <span className="material-symbols-outlined text-sm">refresh</span>
+          </button>
           <div className="flex items-center gap-1.5 bg-surface-container-high px-3 py-1.5 rounded-full border border-surface-container-highest shadow-xs">
             <BatteryCharging className="w-4 h-4 text-primary" />
             <span className="text-xs font-bold text-primary font-sora">

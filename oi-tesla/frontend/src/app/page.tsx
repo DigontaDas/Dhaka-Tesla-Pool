@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, CAST } from '../context/AuthContext';
 import { ApiClient } from '../lib/api';
 import { useRouter } from 'next/navigation';
 import { UberLiveMap } from '../components/UberLiveMap';
 import { useLanguage } from '../context/LanguageContext';
 import { TeslaLogo } from '../components/TeslaLogo';
 import { ElectricRickshawIcon } from '../components/ElectricRickshawIcon';
+import { Zap, Radio, Shield, Star, Users } from 'lucide-react';
 
 export default function BookRidePage() {
-  const { user, role } = useAuth();
+  const { user, role, switchUser } = useAuth();
   const { language } = useLanguage();
   const router = useRouter();
 
@@ -19,10 +20,19 @@ export default function BookRidePage() {
   const [destinationId, setDestinationId] = useState<string>('a1000000-0000-0000-0000-000000000003'); // Mohakhali
   const [seatsNeeded, setSeatsNeeded] = useState<number>(1);
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'tesla_pay'>('cash');
+  const [autoAssign, setAutoAssign] = useState<boolean>(true); // Uber instant auto-match by default
+  const [availableDrivers, setAvailableDrivers] = useState<any[]>([]);
   const [estimate, setEstimate] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [bookingSuccess, setBookingSuccess] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Seamlessly switch to Passenger Nusrat if currently a driver on booking page
+  useEffect(() => {
+    if (user && user.role === 'driver') {
+      switchUser(CAST.NUSRAT);
+    }
+  }, [user]);
 
   // Fetch areas on load
   useEffect(() => {
@@ -31,6 +41,21 @@ export default function BookRidePage() {
         setAreas(res.data);
       }
     });
+  }, []);
+
+  // Fetch available Tesla drivers in real-time
+  const fetchAvailableDrivers = () => {
+    ApiClient.get('/rides/available-drivers').then((res) => {
+      if (res.success && res.data) {
+        setAvailableDrivers(res.data);
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchAvailableDrivers();
+    const timer = setInterval(fetchAvailableDrivers, 2500);
+    return () => clearInterval(timer);
   }, []);
 
   // Fetch fare estimate whenever pickup or destination changes
@@ -64,6 +89,7 @@ export default function BookRidePage() {
       destination_area_id: destinationId,
       seats_needed: seatsNeeded,
       payment_method: paymentMethod,
+      auto_assign: autoAssign,
     });
 
     setLoading(false);
@@ -71,7 +97,7 @@ export default function BookRidePage() {
       setBookingSuccess(res.data.id);
       setTimeout(() => {
         router.push(`/tracking?ride_id=${res.data.id}`);
-      }, 1000);
+      }, 900);
     } else {
       setErrorMessage(res.error || 'Failed to request ride');
     }
@@ -260,6 +286,116 @@ export default function BookRidePage() {
             </div>
           </div>
         )}
+
+        {/* Available Tesla Pilots Nearby (Live Stand Fleet) */}
+        <div className="bg-surface-container rounded-2xl p-3 border border-surface-container-high/60 shadow-sm flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+              </span>
+              <span className="text-xs font-bold text-on-surface font-sora">
+                {language === 'bn' ? 'নিকটস্থ উপলব্ধ টেসলা পাইলট' : 'Available Tesla Pilots Nearby'}
+              </span>
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+              {availableDrivers.length > 0 ? `${availableDrivers.length} Online` : '1 Online'}
+            </span>
+          </div>
+
+          {availableDrivers.length > 0 ? (
+            availableDrivers.map((d: any) => (
+              <div
+                key={d.id}
+                className="bg-surface-container-low rounded-xl p-2.5 border border-surface-container-high/40 flex items-center justify-between gap-2"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container font-bold text-xs flex items-center justify-center shrink-0 border border-primary/30">
+                    JU
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-on-surface truncate">{d.name}</p>
+                      <span className="text-[10px] text-secondary font-bold flex items-center gap-0.5">
+                        <Star className="w-2.5 h-2.5 fill-secondary" />
+                        {d.rating_avg}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-on-surface-variant truncate">
+                      {d.vehicle?.name || 'Bullet'} · {language === 'bn' ? d.stand_name_bn : d.stand_name}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0">
+                  <div className="text-[11px] font-bold text-primary flex items-center justify-end gap-1">
+                    <Zap className="w-3 h-3 text-secondary" />
+                    <span>{d.vehicle?.battery_pct || 86}%</span>
+                  </div>
+                  <span className="text-[9px] text-on-surface-variant">
+                    {d.available_seats || 3} {language === 'bn' ? 'আসন ফাঁকা' : 'seats open'}
+                  </span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-surface-container-low rounded-xl p-2.5 border border-surface-container-high/40 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ElectricRickshawIcon className="w-6 h-6 text-primary" />
+                <div>
+                  <p className="text-xs font-bold text-on-surface">জসিম উদ্দিন (Jashim Uddin)</p>
+                  <p className="text-[10px] text-on-surface-variant">বুলেট ৩-সিট টেসলা ই-রিকশা · বনানী স্ট্যান্ড</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-primary">★ ৪.৯</span>
+            </div>
+          )}
+
+          {/* Dispatch Mode Selector (Uber Auto-Assign vs Stand Broadcast) */}
+          <div className="mt-1 pt-2 border-t border-surface-container-high/50 flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase font-bold text-outline">
+              {language === 'bn' ? 'বরাদ্দ মোড (Dispatch Mode)' : 'Dispatch Mode'}
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setAutoAssign(true)}
+                className={`py-2 px-2.5 rounded-xl border text-left transition-all ${
+                  autoAssign
+                    ? 'bg-primary-container/20 border-primary text-primary shadow-xs'
+                    : 'bg-surface-container-low border-surface-container-high text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <div className="flex items-center gap-1 font-bold text-xs font-sora">
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>{language === 'bn' ? 'উবার অটো-অ্যাসাইন' : 'Uber Auto-Assign'}</span>
+                </div>
+                <p className="text-[10px] opacity-80 mt-0.5 leading-tight">
+                  {language === 'bn' ? 'মুহূর্তেই চালক বরাদ্দ' : 'Instant 1-click match'}
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAutoAssign(false)}
+                className={`py-2 px-2.5 rounded-xl border text-left transition-all ${
+                  !autoAssign
+                    ? 'bg-secondary-container/20 border-secondary text-secondary shadow-xs'
+                    : 'bg-surface-container-low border-surface-container-high text-on-surface-variant hover:text-on-surface'
+                }`}
+              >
+                <div className="flex items-center gap-1 font-bold text-xs font-sora">
+                  <Radio className="w-3.5 h-3.5" />
+                  <span>{language === 'bn' ? 'স্ট্যান্ড ব্রডকাস্ট' : 'Stand Broadcast'}</span>
+                </div>
+                <p className="text-[10px] opacity-80 mt-0.5 leading-tight">
+                  {language === 'bn' ? 'চালক ককপিটে গ্রহণ করবেন' : 'Driver accepts in cockpit'}
+                </p>
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Error message if any */}
         {errorMessage && (

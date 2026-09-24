@@ -11,7 +11,7 @@ router.use(requireRole('driver'));
 
 // Get all incoming/pending requests
 router.get('/requests', (req: AuthenticatedRequest, res: Response) => {
-  const requests = store.getPendingRideRequests();
+  const requests = store.getPendingRideRequests(req.user?.id);
   return res.json({
     success: true,
     data: requests,
