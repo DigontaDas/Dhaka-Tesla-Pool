@@ -31,6 +31,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Root health check endpoint (for Render & browser status verification)
+app.get('/', (req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'oi-tesla-backend',
+    version: '1.0.0',
+    message: '⚡ Oi Tesla Backend Engine Roaring Online',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Health check endpoint (PRD requirement)
 app.get('/health', (req, res) => {
   res.json({
